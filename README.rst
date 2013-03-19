@@ -14,21 +14,17 @@ Objetivos
 Directorios
 ===========
 
-//gameofzones/foursquareapi (apicación para la comunicación con la API de foursquare)
+//manage.py (archivo par controlar el proyecto)
+//gameofzones/
+    /__init__.py (archivo principal del proyecto)
 
-             //staticfiles (carpeta de ficheros externos)
+	/gameofzones.db (base de datos)
 
-             //templates (carpeta de plantillas del proyecto)
+    /wsgi.py (archivo para desplegar el proyecto en el servidor)
 
-	     /__init__.py (archivo principal del proyecto)
+    /settings.py (opciones del proyecto)
 
-	     /gameofzones.db (base de datos)
-
-	     /manage.py (archivo para controlar el proyecto)
-
-	     /settings.py (opciones del proyecto)
-
-	     /urls.py (dispensador de urls)
+    /urls.py (dispensador de urls)
 
 Requisitos
 ==========
