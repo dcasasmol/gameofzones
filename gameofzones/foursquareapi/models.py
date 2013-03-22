@@ -4,9 +4,9 @@ from django.db import models
 
 # Categorie class.
 class Categorie(models.Model):
-    id = models.CharField(max_length=20, primary_key=True)
-    name = models.CharField(max_length=30)
-    icon = models.CharField(max_length=30)
+    id = models.CharField(max_length=30, primary_key=True)
+    name = models.CharField(max_length=35)
+    icon = models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
@@ -20,7 +20,7 @@ class User(models.Model):
 
     id = models.CharField(max_length=20, primary_key=True)
     first_name = models.CharField(max_length=20)
-    last_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=40)
     gender = models.CharField(max_length=6, choices=GENDER_CHOICES, blank=True)
     photo = models.CharField(max_length=20, blank=True)
     city = models.CharField(max_length=30, blank=True)
@@ -50,11 +50,11 @@ class Zone(models.Model):
 
 # Venue class.
 class Venue(models.Model):
-    id = models.CharField(max_length=20, primary_key=True)
-    name = models.CharField(max_length=30)
-    lat = models.CharField(max_length=15)
-    lon = models.CharField(max_length=15)
-    foursqueare_url = models.CharField(max_length=20)
+    id = models.CharField(max_length=25, primary_key=True)
+    name = models.CharField(max_length=40)
+    lat = models.CharField(max_length=25)
+    lon = models.CharField(max_length=25)
+    foursqueare_url = models.CharField(max_length=25)
     categorie = models.ForeignKey(Categorie)
     zone = models.ForeignKey(Zone)
     checkins = models.ManyToManyField(User, through='Checkin')
