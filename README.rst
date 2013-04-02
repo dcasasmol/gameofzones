@@ -14,27 +14,27 @@ Objetivos
 Directorios
 ===========
 
-    //manage.py (archivo par controlar el proyecto)
-    //gameofzones/
-        /__init__.py (archivo necesario para Python)
-        /wsgi.py (archivo para desplegar el proyecto en el servidor)
-        /settings.py (opciones del proyecto)
-        /urls.py (dispensador de urls)
-    //foursquare/
-        /__init__.py (archivo necesario para Python)
-        /admin.py (controlador de los modelos en la vista de admin)
-        /models.py (modelos para la base de datos)
-        /test.py (archivo para tests)
-        /views.py (vistas de la aplicación)
-        /migrations (directorio para South(migraciones))
+//manage.py (archivo par controlar el proyecto)
+//gameofzones/
+----/__init__.py (archivo necesario para Python)
+----/wsgi.py (archivo para desplegar el proyecto en el servidor)
+----/settings.py (opciones del proyecto)
+----/urls.py (dispensador de urls)
+//foursquare/
+----/__init__.py (archivo necesario para Python)
+----/admin.py (controlador de los modelos en la vista de admin)
+----/models.py (modelos para la base de datos)
+----/test.py (archivo para tests)
+----/views.py (vistas de la aplicación)
+----/migrations (directorio para South(migraciones))
 
 
 Requisitos
 ==========
 
-Game of Zones no es necesario ningún requisito. Sólo se necesita un navegador web y conexión a internet. También es necesario tener una cuenta en la web::
+Game of Zones sólo se necesita un navegador web y conexión a internet. También es necesario tener una cuenta en la web:
 
-     https://www.foursquare.com
+    https://www.foursquare.com
 
 Instalación
 ===========
