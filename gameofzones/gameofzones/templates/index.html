@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block contentbody %}
+<div class="container">
+    <div class="row">
+        <div class="span16 login">
+            <a href="{% url 'oauth_auth' %}">
+                <img src="{{STATIC_URL}}img/foursquare-login.png" alt="Login" />
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+import json
+import urllib2
+import time
+
+total = []
+
+for item in places:
+    url = 'https://api.foursquare.com/v2/venues/search?ll=' + str(item['lat']) + ',' + str(item['lng']) + '&oauth_token=M1QQOSA5WJSQMM2RB44XTD3RX5Q4LLIGIEHV0GT0LA4PY3AH&v=20130312'
+    print url
+    response = urllib2.urlopen(url)
+    response = response.read()
+    response = json.loads(response)['response']['venues']
+    total.extend(response)
+    time.sleep(2)
+
+
+lListA = ['Javier','Esteban','Nada','Javier','Leo']
+lListB = []
+ 
+for i in lListA:
+        if i not in lListB:
+                lListB.append(i)
+
+
+venues = []
+def filtro():
+     for item in total:
+             aux = {'id': item['id'], 'name': item['name'], 'lat': item['location']['lat'], 'lon': item['location']['lng']}
+             venues.append(aux)
+             
+             
+             
+allid = []
+for item in allvenues:
+    item['id']
+    
+allurls = []
+def geturls():
+    count = 0
+    for item in allid:
+        url = 'https://api.foursquare.com/v2/venues/' + item + '?oauth_token=M1QQOSA5WJSQMM2RB44XTD3RX5Q4LLIGIEHV0GT0LA4PY3AH&v=20130322'
+        print url
+        count = count + 1
+        print count
+        response = urlopen(url)
+        response = response.read()
+        response = json.loads(response)['response']['venue']['shortUrl']
+        allurls.append(response[15:])
+        print response
+        time.sleep(3)

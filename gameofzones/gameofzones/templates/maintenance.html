@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block contentbody %}
+<div class="container">
+    <div class="row">
+        <div class="span16 login">
+            <div class="span3 logo">
+                {% load staticfiles %}
+                <img src="{% static "img/keko.png" %}" alt="Maintenance"/>
+                <div class="span12 offset1 message">
+                    <h1>En mantenimiento...</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

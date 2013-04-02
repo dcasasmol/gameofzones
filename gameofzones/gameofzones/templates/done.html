@@ -1,0 +1,213 @@
+
+{% extends "base.html" %}
+
+{% block jsscripts %}
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLcBr2X0VPuwnHKAxz3P1Y4N4h8IM13zA&sensor=false"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+{% block extrajs %}
+<script type="text/javascript">
+    // Variable with actions which handles the key
+    var actions = {
+        open: function() {
+            $('#container-key').slideDown('slow');
+            $('#key-open').css('display','none');
+            $('#key-close').css('display','block');
+        },
+        close: function() {
+            $('#container-key').slideUp('slow');
+            $('#key-open').css('display','block');
+            $('#key-close').css('display','none');
+        }
+    }
+
+    // Function which starts when the page loads
+    function initialize() {
+        // Create the map
+        var myOptions = {
+            zoom: 13,
+            center: new google.maps.LatLng(36.510878, -6.31731),
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(document.getElementById("map"), myOptions);
+
+        // Import python string to javascript objects array
+        var database = {{ database|safe }};
+        alert(database[0]['fields']['king'])
+
+        // Variables which store objects (markers, zones and  infowindows)
+        var arrMarkers = [];
+        var arrCheckins = [];
+        var arrInfoWindows = [];
+        var arrInfoWindows2 = []; // CAMBIAR ESTOOOOOOOOOOOOOOOOOOOOO
+        var arrZones = [];
+
+/*        // For each checkin plot a marker.
+        $.each(database, function(i, marker) {
+            // Create the marker
+            var marker = new google.maps.Marker({
+                position: new google.maps.LatLng(database[i].fields.venue.lat,database.checkins[i].venue.lon),
+                map: map,
+                title: database.checkins[i].venue.name
+            });
+            // Store the marker in its array
+            arrCheckins[i] = marker;
+
+            // Set up the event window for the marker
+            var infowindow = new google.maps.InfoWindow({
+                content: "<h3>" + marker.title + "</h3><p>" + database.checkins[i].num_checkins + " veces</p>"
+            });
+            // Store the event window too
+            arrInfoWindows2[i] = infowindow;
+            // Add a listener to control the event
+            google.maps.event.addListener(marker, 'click', function() {
+                // Before open the info window, close all other
+                for(x=0; x < arrInfoWindows2.length; x++){ arrInfoWindows2[x].close(); }
+                infowindow.open(map, marker);
+            });
+        });
+*/
+        // Function that processes the JSON file
+/*        {% load staticfiles %}
+        $.getJSON('{% static "data/venues.json" %}', function(data) {
+            // === Create the markers from the JSON file ===
+            $.each(data.markers, function(i, marker) {
+                var marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(marker.lat, marker.lng),
+                    map: map,
+                    title: marker.name,
+                    icon: 'http://labs.google.com/ridefinder/images/mm_20_green.png'
+                });
+                arrMarkers[i] = marker;
+                // === Set up the event window ===
+                var infowindow = new google.maps.InfoWindow({
+                    content: "<h3>"+ marker.title +"</h3><p>"+ marker.title +"</p>"
+                });
+                arrInfoWindows[i] = infowindow;
+                google.maps.event.addListener(marker, 'click', function() {
+                    for(x=0; x<arrInfoWindows.length; x++) { arrInfoWindows[x].close(); }
+                    infowindow.open(map, marker);
+                });
+            });
+        });
+*/
+        // Function that processes the JSON file
+        $.getJSON('{% static "data/zones.json" %}', function(data) {
+            // Plot the polygons (zones)
+            $.each(data.lines, function(i, item) {
+                // Variable to store the points for each zone
+                var points = [];
+                // Make the points in Google Maps format
+                $.each(item.points, function(j, point) {
+                    points[j] = new google.maps.LatLng(point.lat, point.lng);
+                });
+                // Create the polygon with the propierties and set it in the map
+                var zone = new google.maps.Polygon({
+                    paths: points,
+                    strokeColor: item.colour,
+                    strokeOpacity: 1,
+                    strokeWeight: item.width,
+                    fillColor: "#008800",
+                    fillOpacity: 0.2
+                });
+                zone.setMap(map);
+                // Store the zone in the array
+                arrZones[i] = zone;
+            });
+
+            // Throw listeners for different events
+            handleEvent(map, arrZones);
+        });
+
+        google.maps.event.addListener(map, 'zoom_changed', function() {
+            if(map.getZoom()<14) {
+                handleEvent(map, arrZones);
+            }
+        });
+    }
+
+    // Function which handles the events throwing listeners
+    function handleEvent(map, zones) {
+        var arrMouseOver = [];
+        var arrMouseOut = [];
+        var arrClick = [];
+        var path = [];
+        var bounds = [];
+
+        for(i=0; i<zones.length; i++) {
+            zones[i].setOptions({fillOpacity: 0.2});
+        }
+
+        for(i=0; i<zones.length; i++) {
+            // Add listeners for 'mouseover'
+            arrMouseOver[i] = google.maps.event.addListener(zones[i],"mouseover", function() {
+                this.setOptions({fillOpacity: 0.7});
+            });
+            // Add listeners for 'mouseout'
+            arrMouseOut[i] = google.maps.event.addListener(zones[i],"mouseout", function() {
+                this.setOptions({fillOpacity: 0.2});
+            });
+            // Add listeners for 'click'
+            arrClick = google.maps.event.addListener(zones[i],"click", function() {
+                // Zoom in
+                map.setZoom(16);
+                // Set zone center passing each point of the polygon to a LatLngBounds objects through the extend() method
+                path = this.getPath().getArray();
+                bounds = new google.maps.LatLngBounds();
+                for(j=0;j<path.length;j++) {
+                    bounds.extend(path[j]);
+                }
+                // Finally call the getCenter() method on the LatLngBounds object
+                map.panTo(bounds.getCenter());
+                map.panBy(-100,0);
+
+                // Remove MouseOver and MouseOut listeners and set fillOpacity to 0.7 except 'this'
+                for(j=0; j<zones.length; j++) {
+                    zones[j].setOptions({fillOpacity: 0.7});
+                    google.maps.event.removeListener(arrMouseOver[j]);
+                    google.maps.event.removeListener(arrMouseOut[j]);
+                }
+                this.setOptions({fillOpacity: 0.2});
+            });
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %}
+
+{% block extrabodytag  %}onload="initialize()"{% endblock %}
+
+{% block contentbody %}
+<div id="map"></div>
+<div id="key-close" onclick="javascript:actions.close()">
+    <img class="arrow" src="{{ STATIC_URL }}img/arrow-up2.png" alt="Close"/>
+</div>
+<div id="key-open" onclick="javascript:actions.open()">
+    <img class="arrow" src="{{ STATIC_URL }}img/arrow-down2.png" alt="Open"/>
+</div>
+<div id="container-key">
+    <div class="row">
+        <div class="span6 key">
+            <div class="key-item">
+                <div class="search position">
+                    <legend>"Last month's checkins:"</legend>
+                    <ul>
+                        {% for item in checkins  %}
+                        <li>{{item.venue.name}}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <p class="inputRow">
+                    <input class="button" type="submit" value="Botón" />
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p>Hi {{ name }}, you've successfully logged in! </p>
+<ul>
+    {% for item in checkins  %}
+    <li>{{item.venue.name}}</li>
+    {% endfor %}
+</ul>
+<a href="../logout/">Logout</a>{% endblock %}

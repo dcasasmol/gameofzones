@@ -22,7 +22,7 @@ class User(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=40)
     gender = models.CharField(max_length=6, choices=GENDER_CHOICES, blank=True)
-    photo = models.CharField(max_length=20, blank=True)
+    photo = models.CharField(max_length=30)
     city = models.CharField(max_length=30, blank=True)
     bio = models.TextField(blank=True)
     email = models.EmailField(blank=True)
@@ -30,7 +30,7 @@ class User(models.Model):
     twitter = models.CharField(max_length=20, blank=True)
     points = models.IntegerField(default=0)
     num_zones = models.IntegerField(default=0)
-    friends = models.ManyToManyField('self')
+    friends = models.ManyToManyField('self', blank=True)
     num_friends = models.IntegerField(default=0)
 
     def __unicode__(self):
@@ -71,5 +71,8 @@ class Checkin(models.Model):
     process = models.BooleanField(default=True)
 
     def __unicode__(self):
-        return '%s en %s, %s veces' % (self.user, self.venue, self.num_checkins)
+        if self.num_checkins == 1:
+            return u'%s en %s, %s vez' % (self.user, self.venue, self.num_checkins)
+        else:
+            return u'%s en %s, %s veces' % (self.user, self.venue, self.num_checkins)
 

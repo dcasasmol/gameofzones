@@ -16,17 +16,17 @@ Directorios
 
     //manage.py (archivo par controlar el proyecto)
     //gameofzones/
-    /__init__.py (archivo necesario para Python)
-    /wsgi.py (archivo para desplegar el proyecto en el servidor)
-    /settings.py (opciones del proyecto)
-    /urls.py (dispensador de urls)
+        /__init__.py (archivo necesario para Python)
+        /wsgi.py (archivo para desplegar el proyecto en el servidor)
+        /settings.py (opciones del proyecto)
+        /urls.py (dispensador de urls)
     //foursquare/
-    /__init__.py (archivo necesario para Python)
-    /admin.py (controlador de los modelos en la vista de admin)
-    /models.py (modelos para la base de datos)
-    /test.py (archivo para tests)
-    /views.py (vistas de la aplicación)
-    /migrations (directorio para South(migraciones))
+        /__init__.py (archivo necesario para Python)
+        /admin.py (controlador de los modelos en la vista de admin)
+        /models.py (modelos para la base de datos)
+        /test.py (archivo para tests)
+        /views.py (vistas de la aplicación)
+        /migrations (directorio para South(migraciones))
 
 
 Requisitos

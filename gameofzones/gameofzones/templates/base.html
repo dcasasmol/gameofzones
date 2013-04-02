@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta http-equiv="content-language" content="{{ LANGUAGE_CODE }}">
+        <meta name="keywords" content="gameofzones, goz, foursquare, foursquare game, django, game of zones, axte, axterciyo, David Casas Molina, David Casas, CUSL VI, CUSL 6, UCA, Universidad de Cádiz" />
+        <meta name="description" content="Conquer whatever you want! or...whatever you can..."/>
+        {% block extrameta %}
+        {% endblock %}
+
+        {% comment %} <link rel="shortcut icon" href="{{ STATIC_URL }}img/favicon.ico" type="image/gif" /> {% endcomment %}
+        <title>{% block sitetitlewrapper %}{% block sitetitle %}Game of Zones{% endblock %} - {% block pagetitle %}Conquer whatever you want! or...whatever you can...{% endblock %}{% endblock %}</title>
+
+        {% block cssstyles %}
+        {% load staticfiles %}
+        <link href="{% static "css/bootstrap.css" %}" rel="stylesheet" media="all" type="text/css"/>
+        <link href="{% static "css/style.css" %}" rel="stylesheet" media="all" type="text/css"/>
+        {% block extracss%}
+        {% endblock %}
+        {% endblock %}
+
+        {% block jsscripts %}
+        <!-- Children should overwrite this block -->
+        {% block extrajs %}
+        {% endblock %}
+        {% endblock %}
+    </head>
+    <body dir="ltr" {% block extrabodytag %}{% endblock %}>
+        {% block bodywrapper %}
+        <div id="page-wrapper">
+            <div id="header">
+                {% block header %}
+                {% include "header.html" %}
+                {% endblock %}
+            </div>
+            <div id="content-wrapper">
+                {% block contentbody %}
+                {% endblock %}
+            </div>
+            <div id="footer">
+                {% block footer %}
+                {% include "footer.html" %}
+                {% endblock %}
+            </div>
+        </div>
+        {% endblock %}
+    </body>
+</html>
