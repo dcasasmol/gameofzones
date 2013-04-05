@@ -1,4 +1,4 @@
-# create yours views here
+# Create yours views here.
 
 import json
 from urllib import urlencode
@@ -16,7 +16,7 @@ from foursquare.utils import get_datetime, get_timestamp_month_ago
 from foursquare.utils import process_user, process_checkins
 from foursquare.utils import get_data_database
 
-# settings for foursquare login
+# Settings for foursquare login.
 CLIENT_ID = 'ZGS2B13AJH3RN03KB1O4YWEGRXAXUUZK2WVPYTA0WBZA1R22'
 CLIENT_SECRET = 'ISCNHPBWZWMOHXFN22Y1GVA3DX31QYUIFSWPHKQEV5I3ASHK'
 
@@ -26,27 +26,27 @@ redirect_url = 'http://localhost:8000/foursquare/callback'
 
 
 def auth(request):
-    # build the url to request
+    # Build the url to request.
     params = {'client_id': CLIENT_ID,
             'response_type': 'code',
             'redirect_uri': redirect_url}
     data = urlencode(params)
-    # redirect the user to the url to confirm access for the app
+    # Redirect the user to the url to confirm access for the app.
     return HttpResponseRedirect('%s?%s' % (request_token_url, data))
 
 
 def unauth(request):
-    # clear any tokens and logout
+    # Clear any tokens and logout.
     request.session.clear()
     logout(request)
     return HttpResponseRedirect(reverse('home'))
 
 
 def callback(request):
-    # get the code returned from foursquare
+    # Get the code returned from foursquare.
     code = request.GET.get('code')
 
-    # build the url to request the access_token
+    # Build the url to request the access_token.
     params = {'client_id': CLIENT_ID,
            'client_secret': CLIENT_SECRET,
            'grant_type': 'authorization_code',
@@ -55,40 +55,40 @@ def callback(request):
     data = urlencode(params)
     req = Request(access_token_url, data)
 
-    # request the access_token
+    # Request the access_token.
     response = urlopen(req)
     access_token = json.loads(response.read())
     access_token = access_token['access_token']
 
-    # store the access_token for later use
+    # Store the access_token for later use.
     request.session['access_token'] = access_token
 
-    # redirect the user to show we're done
+    # Redirect the user to show we're done.
     return HttpResponseRedirect(reverse('oauth_done'))
 
 
 def done(request):
-    # get the access_token
+    # Get the access_token.
     access_token = request.session.get('access_token')
 
-    # request user details from foursquare
+    # Request user details from foursquare.
     api = 'https://api.foursquare.com/v2/'
     endpoint = 'users/self'
     params = {'oauth_token': access_token,
               'v': get_datetime(),
     }
-    # build the url to user's request
+    # Build the url to user's request.
     url = '%s%s?%s' % (api, endpoint, urlencode(params))
     user = urlopen(url)
     user = user.read()
     user = json.loads(user)['response']['user']
     user = process_user(user)
 
-    # optional user details from foursquare
+    # Optional user details from foursquare.
     extra_params = {'afterTimestamp': get_timestamp_month_ago(),
               'limit': 250,
     }
-    # build the url to checkins's request
+    # Build the url to checkins's request.
     endpoint = 'users/self/checkins'
     url = '%s%s?%s&%s' % (api, endpoint, urlencode(extra_params),
                          urlencode(params))
@@ -99,6 +99,6 @@ def done(request):
 
     database = serialize('json', Zone.objects.all())
 
-    # show the page with the user's name to show they've logged in
+    # Show the page with the user's name to show they've logged in.
     return render_to_response('done.html', {'database': database},
                               context_instance=RequestContext(request))

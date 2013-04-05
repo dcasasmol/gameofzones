@@ -41,7 +41,7 @@ class User(models.Model):
 class Zone(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30)
-    king = models.ForeignKey(User)
+    king = models.ForeignKey(User, related_name='kingdoms')
     num_venues = models.IntegerField(default=0)
 
     def __unicode__(self):
@@ -55,8 +55,8 @@ class Venue(models.Model):
     lat = models.CharField(max_length=25)
     lon = models.CharField(max_length=25)
     foursquare_url = models.CharField(max_length=25)
-    categorie = models.ForeignKey(Categorie)
-    zone = models.ForeignKey(Zone)
+    categorie = models.ForeignKey(Categorie, related_name='venues')
+    zone = models.ForeignKey(Zone, related_name='venues')
     checkins = models.ManyToManyField(User, through='Checkin')
 
     def __unicode__(self):
@@ -69,6 +69,10 @@ class Checkin(models.Model):
     venue = models.ForeignKey(Venue)
     num_checkins = models.IntegerField(default=0)
     process = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('user', 'venue')
+        ordering = ['user', '-num_checkins']
 
     def __unicode__(self):
         if self.num_checkins == 1:
