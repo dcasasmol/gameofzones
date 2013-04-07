@@ -10,12 +10,12 @@ urlpatterns = patterns('',
     url(r'^foursquare/', include('foursquare.urls')),
     url(r'^maintenance/', views.maintenance, name='maintenance'),
 
+    # Default login/logout API views
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^apirest/', include('apirest.urls')),
 
-    # Uncomment the admin/doc line below to enable admin documentation.
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
     # Uncomment the next line to enable the admin.
     url(r'^admin/', include(admin.site.urls)),
+    # Uncomment the admin/doc line below to enable admin documentation.
+    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 )

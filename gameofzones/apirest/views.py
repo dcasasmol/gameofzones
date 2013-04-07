@@ -1,251 +1,134 @@
 # Create your views here.
 
-from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.renderers import JSONRenderer
-from rest_framework.parsers import JSONParser
+from django.http import Http404
+from rest_framework import status, generics, permissions, renderers
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+from rest_framework.views import APIView
 from foursquare.models import Categorie, User, Zone, Venue, Checkin
 from foursquare.serializers import CategorieSerializer, UserSerializer, ZoneSerializer, VenueSerializer, CheckinSerializer
 
-# Subclass of HttpResponse that render any data returned into json.
-class JSONResponse(HttpResponse):
-    # An HttpResponse that renders it's content into JSON.
-    def __init__(self, data, **kwargs):
-        content = JSONRenderer().render(data)
-        kwargs['content_type'] = 'application/json'
-        super(JSONResponse, self).__init__(content, **kwargs)
+
+# Single entry point to the API
+@api_view(('GET',))
+def api_root(request, format=None):
+    return Response({
+        'categories': reverse('categorie_list', request=request, format=format),
+        'users': reverse('user_list', request=request, format=format),
+        'zones': reverse('zone_list', request=request, format=format),
+        'venues': reverse('venue_list', request=request, format=format),
+        'checkins': reverse('checkin_list', request=request, format=format)
+    })
 
 
 
-# View which lists all the existing categories, or creating a new categorie.
-@csrf_exempt
-def CategorieList(request):
-    # List all categories, or create a new categorie.
-    if request.method == 'GET':
-        categories = Categorie.objects.all()
-        serializer = CategorieSerializer(categories, many=True)
-        return JSONResponse(serializer.data)
+# Class which lists all the existing categories, or creates a new categorie.
+class CategorieList(generics.ListCreateAPIView):
+    model = Categorie
+    serializer_class = CategorieSerializer
 
-    elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = CategorieSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JSONResponse(serializer.data, status=201)
-        else:
-            return JSONResponse(serializer.errors, status=400)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
+# Class which corresponds to an individual categorie, and can be used to retrieve, update or delete the categorie.
+class CategorieDetail(generics.RetrieveUpdateDestroyAPIView):
+    model = Categorie
+    serializer_class = CategorieSerializer
 
-# View which corresponds to an individual categorie, and can be used to retrieve, update or delete the categorie.
-@csrf_exempt
-def CategorieDetail(request, id):
-    # Retrieve, update or delete a categorie.
-    try:
-        categorie = Categorie.objects.get(id=id)
-    except Categorie.DoesNotExist:
-        return HttpResponse(status=404)
-
-    if request.method == 'GET':
-        serializer = CategorieSerializer(categorie)
-        return JSONResponse(serializer.data)
-
-    elif request.method == 'PUT':
-        data = JSONParser().parse(request)
-        serializer = CategorieSerializer(categorie, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JSONResponse(serializer.data)
-        else:
-            return JSONResponse(serializer.errors, status=400)
-
-    elif request.method == 'DELETE':
-        categorie.delete()
-        return HttpResponse(status=204)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 
-# View which lists all the existing users, or creating a new user.
-@csrf_exempt
-def UserList(request):
-    # List all users, or create a new user.
-    if request.method == 'GET':
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return JSONResponse(serializer.data)
+# Class which lists all the existing users, or creates a new user.
+class UserList(generics.ListCreateAPIView):
+    model = User
+    serializer_class = UserSerializer
 
-    elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = UserSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JSONResponse(serializer.data, status=201)
-        else:
-            return JSONResponse(serializer.errors, status=400)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
+# Class which corresponds to an individual user, and can be used to retrieve, update or delete the user.
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
+    model = User
+    serializer_class = UserSerializer
 
-# View which corresponds to an individual user, and can be used to retrieve, update or delete the user.
-@csrf_exempt
-def UserDetail(request, id):
-    # Retrieve, update or delete a user.
-    try:
-        user = User.objects.get(id=id)
-    except User.DoesNotExist:
-        return HttpResponse(status=404)
-
-    if request.method == 'GET':
-        serializer = UserSerializer(user)
-        return JSONResponse(serializer.data)
-
-    elif request.method == 'PUT':
-        data = JSONParser().parse(request)
-        serializer = UserSerializer(user, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JSONResponse(serializer.data)
-        else:
-            return JSONResponse(serializer.errors, status=400)
-
-    elif request.method == 'DELETE':
-        user.delete()
-        return HttpResponse(status=204)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 
-# View which lists all the existing zones, or creating a new zone.
-@csrf_exempt
-def ZoneList(request):
-    # List all zones, or create a new zone.
-    if request.method == 'GET':
-        zones = Zone.objects.all()
-        serializer = ZoneSerializer(zones, many=True)
-        return JSONResponse(serializer.data)
+# Class which lists all the existing zones, or creates a new zone.
+class ZoneList(generics.ListCreateAPIView):
+    model = Zone
+    serializer_class = ZoneSerializer
 
-    elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = ZoneSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JSONResponse(serializer.data, status=201)
-        else:
-            return JSONResponse(serializer.errors, status=400)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
+# Class which corresponds to an individual zone, and can be used to retrieve, update or delete the zone.
+class ZoneDetail(generics.RetrieveUpdateDestroyAPIView):
+    model = Zone
+    serializer_class = ZoneSerializer
 
-# View which corresponds to an individual zone, and can be used to retrieve, update or delete the zone.
-@csrf_exempt
-def ZoneDetail(request, id):
-    # Retrieve, update or delete a zone.
-    try:
-        zone = Zone.objects.get(id=id)
-    except Zone.DoesNotExist:
-        return HttpResponse(status=404)
-
-    if request.method == 'GET':
-        serializer = ZoneSerializer(zone)
-        return JSONResponse(serializer.data)
-
-    elif request.method == 'PUT':
-        data = JSONParser().parse(request)
-        serializer = ZoneSerializer(zone, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JSONResponse(serializer.data)
-        else:
-            return JSONResponse(serializer.errors, status=400)
-
-    elif request.method == 'DELETE':
-        zone.delete()
-        return HttpResponse(status=204)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 
-# View which lists all the existing venues, or creating a new venue.
-@csrf_exempt
-def VenueList(request):
-    # List all venues, or create a new venue.
-    if request.method == 'GET':
-        venues = Venue.objects.all()
-        serializer = VenueSerializer(venues, many=True)
-        return JSONResponse(serializer.data)
+# Class which lists all the existing venues, or creates a new venue.
+class VenueList(generics.ListCreateAPIView):
+    model = Venue
+    serializer_class = VenueSerializer
 
-    elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = VenueSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JSONResponse(serializer.data, status=201)
-        else:
-            return JSONResponse(serializer.errors, status=400)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
+# Class which corresponds to an individual venue, and can be used to retrieve, update or delete the venue.
+class VenueDetail(generics.RetrieveUpdateDestroyAPIView):
+    model = Venue
+    serializer_class = VenueSerializer
 
-# View which corresponds to an individual venue, and can be used to retrieve, update or delete the venue.
-@csrf_exempt
-def VenueDetail(request, id):
-    # Retrieve, update or delete a venue.
-    try:
-        venue = Venue.objects.get(id=id)
-    except Venue.DoesNotExist:
-        return HttpResponse(status=404)
-
-    if request.method == 'GET':
-        serializer = VenueSerializer(venue)
-        return JSONResponse(serializer.data)
-
-    elif request.method == 'PUT':
-        data = JSONParser().parse(request)
-        serializer = VenueSerializer(venue, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JSONResponse(serializer.data)
-        else:
-            return JSONResponse(serializer.errors, status=400)
-
-    elif request.method == 'DELETE':
-        venue.delete()
-        return HttpResponse(status=204)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 
-# View which lists all the existing checkins, or creating a new checkin.
-@csrf_exempt
-def CheckinList(request):
-    # List all checkins, or create a new checkin.
-    if request.method == 'GET':
+# Class which lists all the existing checkins, or creates a new checkin.
+class CheckinList(APIView):
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+    # List all checkins.
+    def get(self, request, format=None):
         checkins = Checkin.objects.all()
         serializer = CheckinSerializer(checkins, many=True)
-        return JSONResponse(serializer.data)
-
-    elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = CheckinSerializer(data=data)
+        return Response(serializer.data)
+    # Create a new checkin.
+    def post(self, request, format=None):
+        serializer = CheckinSerializer(data=request.DATA)
         if serializer.is_valid():
             serializer.save()
-            return JSONResponse(serializer.data, status=201)
-        else:
-            return JSONResponse(serializer.errors, status=400)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# Class which corresponds to an individual checkin, and can be used to retrieve, update or delete the checkin.
+class CheckinDetail(APIView):
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
-# View which corresponds to an individual checkin, and can be used to retrieve, update or delete the checkin.
-@csrf_exempt
-def CheckinDetail(request, user, venue):
-    # Retrieve, update or delete a checkin.
-    try:
-        checkin = Checkin.objects.get(user=user, venue=venue)
-    except Checkin.DoesNotExist:
-        return HttpResponse(status=404)
-
-    if request.method == 'GET':
+    # Check if a checkin instance exists.
+    def get_object(self, user, venue):
+        try:
+            return Checkin.objects.get(user=user, venue=venue)
+        except Checkin.DoesNotExist:
+            raise Http404
+    # Retrieve a checkin instance.
+    def get(self, request, user, venue, format=None):
+        checkin = self.get_object(user, venue)
         serializer = CheckinSerializer(checkin)
-        return JSONResponse(serializer.data)
-
-    elif request.method == 'PUT':
-        data = JSONParser().parse(request)
-        serializer = CheckinSerializer(checkin, data=data)
+        return Response(serializer.data)
+    # Update a checkin instance.
+    def put(self, request, user, venue, format=None):
+        checkin = self.get_object(user, venue)
+        serializer = CheckinSerializer(checkin, data=request.DATA)
         if serializer.is_valid():
             serializer.save()
-            return JSONResponse(serializer.data)
-        else:
-            return JSONResponse(serializer.errors, status=400)
-
-    elif request.method == 'DELETE':
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # Delete a checkin instance.
+    def delete(self, request, user, venue, format=None):
+        checkin = self.get_object(user, venue)
         checkin.delete()
-        return HttpResponse(status=204)
+        return Response(status=status.HTTP_204_NO_CONTENT)
