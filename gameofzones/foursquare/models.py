@@ -44,6 +44,9 @@ class Zone(models.Model):
     king = models.ForeignKey(User, related_name='kingdoms')
     num_venues = models.IntegerField(default=0)
 
+    class Meta:
+        ordering = ['id']
+
     def __unicode__(self):
         return self.name
 

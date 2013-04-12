@@ -4,9 +4,10 @@
 {% block jsscripts %}
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLcBr2X0VPuwnHKAxz3P1Y4N4h8IM13zA&sensor=false"></script>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://raw.github.com/tparkin/Google-Maps-Point-in-Polygon/master/maps.google.polygon.containsLatLng.js"></script>
 {% block extrajs %}
 <script type="text/javascript">
-    // Variable with actions which handles the key
+    // Variable with actions which handles the key.
     var actions = {
         open: function() {
             $('#container-key').slideDown('slow');
@@ -20,9 +21,9 @@
         }
     }
 
-    // Function which starts when the page loads
+    // Function which starts when the page loads.
     function initialize() {
-        // Create the map
+        // Create the map.
         var myOptions = {
             zoom: 13,
             center: new google.maps.LatLng(36.510878, -6.31731),
@@ -30,15 +31,64 @@
         };
         var map = new google.maps.Map(document.getElementById("map"), myOptions);
 
-        // Import python string to javascript objects array
+        // Import python string to javascript objects array.
         var database = {{ database|safe }};
 
-        // Variables which store objects (markers, zones and infowindows)
+        // Variables which store objects (markers, zones and infowindows).
         var arrMarkers = [];
         var arrCheckins = [];
         var arrInfoWindows = [];
         var arrInfoWindows2 = []; // CAMBIAR ESTOOOOOOOOOOOOOOOOOOOOO
         var arrZones = [];
+        var zones = [];
+
+        // Get the JSON from API to plot the markers.
+        $.getJSON('http://localhost:8000/apirest/zones', function(data){
+            $.each(data, function(i, zone) {
+                var venues = []
+                $.each(zone.venues, function(j, venue){
+                    // Create the marker.
+                    var marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(venue.lat, venue.lon),
+                        map: map,
+                        title: venue.name,
+                        visible: false,
+                        icon: 'http://labs.google.com/ridefinder/images/mm_20_green.png'
+                    });
+                    // Set up the event window.
+                    var infowindow = new google.maps.InfoWindow({
+                        content: '<img src="https://foursquare.com/img/categories_v2/'+ venue.categorie.icon +'" title="' + venue.categorie.name + '" alt="' + venue.categorie.name + '">' + '<h3>' + marker.title + '</h3><a href="http://4sq.com/' + venue.foursquare_url + '" target="_blank"><p>ver en Foursquare</p></a>'
+                    });
+                    // Store the venue in the array with all the properties.
+                    venues[j] = {
+                        'id': venue.id,
+                        'name': venue.name,
+                        'lat': venue.lat,
+                        'lon': venue.lon,
+                        'foursquare_url': venue.foursquare_url,
+                        'categorie': {
+                            'name': venue.categorie.name,
+                            'icon': venue.categorie.icon
+                        },
+                        'zone': venue.zone,
+                        'marker': marker,
+                        'infowindow': infowindow
+                    };
+                    // Add event for each event window.
+                    google.maps.event.addListener(marker, 'click', function() {
+                        // When a event window is opened, all others are closed.
+                        for(k=0; k<zones[i].venues.length; k++) { zones[i].venues[k].infowindow.close(); }
+                        infowindow.open(map, marker);
+                    });
+                });
+                // Store the zone in the array.
+                zones[i] = {
+                    'id': zone.id,
+                    'name': zone.name,
+                    'venues': venues
+                };
+            });
+        });
 
 /*        // For each checkin plot a marker.
         $.each(database, function(i, marker) {
@@ -89,17 +139,17 @@
             });
         });
 */
-        // Function that processes the JSON file
+        // Function that processes the JSON file.
         $.getJSON('{% static "data/zones.json" %}', function(data) {
             // Plot the polygons (zones)
             $.each(data.lines, function(i, item) {
-                // Variable to store the points for each zone
+                // Variable to store the points for each zone.
                 var points = [];
-                // Make the points in Google Maps format
+                // Make the points in Google Maps format.
                 $.each(item.points, function(j, point) {
                     points[j] = new google.maps.LatLng(point.lat, point.lng);
                 });
-                // Create the polygon with the propierties and set it in the map
+                // Create the polygon with the propierties and set it in the map.
                 var zone = new google.maps.Polygon({
                     paths: points,
                     strokeColor: item.colour,
@@ -109,63 +159,80 @@
                     fillOpacity: 0.2
                 });
                 zone.setMap(map);
-                // Store the zone in the array
+                // Store the zone in the array.
                 arrZones[i] = zone;
+
             });
 
-            // Throw listeners for different events
-            handleEvent(map, arrZones);
+            // Throw listeners for different events.
+            handleEvent(map, arrZones, zones);
         });
 
         google.maps.event.addListener(map, 'zoom_changed', function() {
             if(map.getZoom()<14) {
-                handleEvent(map, arrZones);
+                handleEvent(map, arrZones, zones);
             }
         });
     }
 
-    // Function which handles the events throwing listeners
-    function handleEvent(map, zones) {
+    // Function which handles the events throwing listeners.
+    function handleEvent(map, arrZones, zones) {
         var arrMouseOver = [];
         var arrMouseOut = [];
         var arrClick = [];
         var path = [];
         var bounds = [];
 
-        for(i=0; i<zones.length; i++) {
-            zones[i].setOptions({fillOpacity: 0.2});
+        // Hide all the markers when is zooming out.
+        for(j=0; j<zones.length; j++) {
+            for(k=0; k<zones[j].venues.length; k++) {zones[j].venues[k].marker.setVisible(false);}
         }
 
-        for(i=0; i<zones.length; i++) {
-            // Add listeners for 'mouseover'
-            arrMouseOver[i] = google.maps.event.addListener(zones[i],"mouseover", function() {
+        // Set the default opacity when is zooming out.
+        for(i=0; i<arrZones.length; i++) {
+            arrZones[i].setOptions({fillOpacity: 0.2});
+        }
+
+        for(i=0; i<arrZones.length; i++) {
+            // Add listeners for 'mouseover'.
+            arrMouseOver[i] = google.maps.event.addListener(arrZones[i],"mouseover", function() {
                 this.setOptions({fillOpacity: 0.7});
             });
-            // Add listeners for 'mouseout'
-            arrMouseOut[i] = google.maps.event.addListener(zones[i],"mouseout", function() {
+            // Add listeners for 'mouseout'.
+            arrMouseOut[i] = google.maps.event.addListener(arrZones[i],"mouseout", function() {
                 this.setOptions({fillOpacity: 0.2});
             });
-            // Add listeners for 'click'
-            arrClick = google.maps.event.addListener(zones[i],"click", function() {
-                // Zoom in
+            // Add listeners for 'click'.
+            arrClick = google.maps.event.addListener(arrZones[i],"click", function(event) {
+                // Zoom in.
                 map.setZoom(16);
-                // Set zone center passing each point of the polygon to a LatLngBounds objects through the extend() method
+                // Set zone center passing each point of the polygon to a LatLngBounds objects through the extend() method.
                 path = this.getPath().getArray();
                 bounds = new google.maps.LatLngBounds();
                 for(j=0;j<path.length;j++) {
                     bounds.extend(path[j]);
                 }
-                // Finally call the getCenter() method on the LatLngBounds object
+                // Finally call the getCenter() method on the LatLngBounds object.
                 map.panTo(bounds.getCenter());
                 map.panBy(-100,0);
 
-                // Remove MouseOver and MouseOut listeners and set fillOpacity to 0.7 except 'this'
-                for(j=0; j<zones.length; j++) {
-                    zones[j].setOptions({fillOpacity: 0.7});
+                // Remove MouseOver and MouseOut listeners and set fillOpacity to 0.7 except 'this'.
+                for(j=0; j<arrZones.length; j++) {
+                    arrZones[j].setOptions({fillOpacity: 0.7});
                     google.maps.event.removeListener(arrMouseOver[j]);
                     google.maps.event.removeListener(arrMouseOut[j]);
                 }
                 this.setOptions({fillOpacity: 0.2});
+
+                // Show the markers of this zone.
+                for(j=0; j<zones.length; j++) {
+                    if(arrZones[j].containsLatLng(event.latLng)) {
+                        for(k=0; k<zones[j].venues.length; k++) {zones[j].venues[k].marker.setVisible(true);}
+                    }
+                    else {
+                        for(k=0; k<zones[j].venues.length; k++) {zones[j].venues[k].marker.setVisible(false);}
+                    }
+                }
             });
         }
     }
