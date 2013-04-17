@@ -32,7 +32,6 @@
         var map = new google.maps.Map(document.getElementById("map"), myOptions);
 
         // Import python string to javascript objects array.
-        var database = {{ database|safe }};
 
         // Variables which store objects (markers, zones and infowindows).
         var arrMarkers = [];
@@ -57,7 +56,7 @@
                     });
                     // Set up the event window.
                     var infowindow = new google.maps.InfoWindow({
-                        content: '<img src="https://foursquare.com/img/categories_v2/'+ venue.categorie.icon +'" title="' + venue.categorie.name + '" alt="' + venue.categorie.name + '">' + '<h3>' + marker.title + '</h3><a href="http://4sq.com/' + venue.foursquare_url + '" target="_blank"><p>ver en Foursquare</p></a>'
+                        content: '<img style="float:left;" src="https://foursquare.com/img/categories_v2/'+ venue.categorie.icon +'" title="' + venue.categorie.name + '" alt="' + venue.categorie.name + '">' + '<h3>' + marker.title + '</h3><a href="http://4sq.com/' + venue.foursquare_url + '" target="_blank"><p>ver en Foursquare</p></a>'
                     });
                     // Store the venue in the array with all the properties.
                     venues[j] = {
@@ -85,7 +84,13 @@
                 zones[i] = {
                     'id': zone.id,
                     'name': zone.name,
-                    'venues': venues
+                    'venues': venues,
+                    'king': {
+                        'name': zone.king.first_name + ' ' + zone.king.last_name,
+                        'gender': zone.king.gender,
+                        'photo': zone.king.photo,
+                        'city': zone.king.city
+                    }
                 };
             });
         });
@@ -115,31 +120,9 @@
             });
         });
 */
-        // Function that processes the JSON file
-/*        {% load staticfiles %}
-        $.getJSON('{% static "data/venues.json" %}', function(data) {
-            // === Create the markers from the JSON file ===
-            $.each(data.markers, function(i, marker) {
-                var marker = new google.maps.Marker({
-                    position: new google.maps.LatLng(marker.lat, marker.lng),
-                    map: map,
-                    title: marker.name,
-                    icon: 'http://labs.google.com/ridefinder/images/mm_20_green.png'
-                });
-                arrMarkers[i] = marker;
-                // === Set up the event window ===
-                var infowindow = new google.maps.InfoWindow({
-                    content: "<h3>"+ marker.title +"</h3><p>"+ marker.title +"</p>"
-                });
-                arrInfoWindows[i] = infowindow;
-                google.maps.event.addListener(marker, 'click', function() {
-                    for(x=0; x<arrInfoWindows.length; x++) { arrInfoWindows[x].close(); }
-                    infowindow.open(map, marker);
-                });
-            });
-        });
-*/
+
         // Function that processes the JSON file.
+        {% load static %}
         $.getJSON('{% static "data/zones.json" %}', function(data) {
             // Plot the polygons (zones)
             $.each(data.lines, function(i, item) {
@@ -161,7 +144,6 @@
                 zone.setMap(map);
                 // Store the zone in the array.
                 arrZones[i] = zone;
-
             });
 
             // Throw listeners for different events.
@@ -182,6 +164,8 @@
         var arrClick = [];
         var path = [];
         var bounds = [];
+        var infowindows = [];
+        var time;
 
         // Hide all the markers when is zooming out.
         for(j=0; j<zones.length; j++) {
@@ -196,14 +180,38 @@
         for(i=0; i<arrZones.length; i++) {
             // Add listeners for 'mouseover'.
             arrMouseOver[i] = google.maps.event.addListener(arrZones[i],"mouseover", function() {
+                // Set the opacity to 0.7.
                 this.setOptions({fillOpacity: 0.7});
+
+                // Set zone center passing each point of the polygon to a LatLngBounds objects through the extend() method.
+                var path = this.getPath().getArray();
+                var bounds = new google.maps.LatLngBounds();
+                for(j=0;j<path.length;j++) {
+                    bounds.extend(path[j]);
+                }
+                // Create a infowindow using getCenter() method on the LatLngBounds object and show it.
+                var infowindow = new google.maps.InfoWindow({
+                    content: '<img style="float:left;" src="https://is1.4sqi.net/userpix_thumbs'+ zones[arrZones.indexOf(this)].king.photo +'" title="' + zones[arrZones.indexOf(this)].king.name + '" alt="' + zones[arrZones.indexOf(this)].king.name + '">' + '<h3>Nombre: ' + zones[arrZones.indexOf(this)].king.name + '</h3><p>Ciudad: ' + zones[arrZones.indexOf(this)].king.city + '</p>',
+                    position: bounds.getCenter(),
+                });
+                infowindows.push(infowindow);
+                time = setTimeout(function(){infowindow.open(map)},1000);
             });
             // Add listeners for 'mouseout'.
             arrMouseOut[i] = google.maps.event.addListener(arrZones[i],"mouseout", function() {
+                // Clear time variable.
+                clearTimeout(time);
+                // Close all the infowindows if are opened.
+                for(j=0; j < infowindows.length; j++){ infowindows[j].close(); }
+                // Set the opacity to 0.2.
                 this.setOptions({fillOpacity: 0.2});
             });
             // Add listeners for 'click'.
             arrClick = google.maps.event.addListener(arrZones[i],"click", function(event) {
+                // Clear time variable.
+                clearTimeout(time);
+                // Close all the infowindows if are opened.
+                for(j=0; j < infowindows.length; j++){ infowindows[j].close(); }
                 // Zoom in.
                 map.setZoom(16);
                 // Set zone center passing each point of the polygon to a LatLngBounds objects through the extend() method.
@@ -255,7 +263,8 @@
         <div class="span6 key">
             <div class="key-item">
                 <div class="search position">
-                    <legend>"Last month's checkins:"</legend>
+                    <legend>Hola {{database.1.first_name}} {{database.1.last_name}}</legend>
+                    <a href="https://is1.4sqi.net/userpix{{database.1.photo}}"><img src="https://is1.4sqi.net/userpix_thumbs{{database.1.photo}}" title="{{database.1.first_name}} {{database.1.last_name}}" alt="{{database.1.first_name}} {{database.1.last_name}}"></a>
                     <ul>
                         {% for item in checkins  %}
                         <li>{{item.venue.name}}</li>
@@ -270,10 +279,4 @@
     </div>
 </div>
 
-<p>Hi {{ name }}, you've successfully logged in! </p>
-<ul>
-    {% for item in checkins  %}
-    <li>{{item.venue.name}}</li>
-    {% endfor %}
-</ul>
-<a href="../logout/">Logout</a>{% endblock %}
+<a href="{% url 'oauth_unauth' %}">Logout</a>{% endblock %}

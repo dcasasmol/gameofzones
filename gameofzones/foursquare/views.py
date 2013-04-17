@@ -97,7 +97,7 @@ def done(request):
     checkins = json.loads(checkins)['response']['checkins']['items']
     process_checkins(user, checkins)
 
-    database = serialize('json', Zone.objects.all())
+    database = User.objects.all()
 
     # Show the page with the user's name to show they've logged in.
     return render_to_response('done.html', {'database': database},
