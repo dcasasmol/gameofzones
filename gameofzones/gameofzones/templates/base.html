@@ -8,14 +8,14 @@
         {% block extrameta %}
         {% endblock %}
 
+        <title>Game of Zones - Conquer whatever you want! or...whatever you can...</title>
         {% comment %} <link rel="shortcut icon" href="{{ STATIC_URL }}img/favicon.ico" type="image/gif" /> {% endcomment %}
-        <title>{% block sitetitlewrapper %}{% block sitetitle %}Game of Zones{% endblock %} - {% block pagetitle %}Conquer whatever you want! or...whatever you can...{% endblock %}{% endblock %}</title>
 
         {% block cssstyles %}
-        {% load staticfiles %}
-        <link href="{% static "css/bootstrap.css" %}" rel="stylesheet" media="all" type="text/css"/>
-        <link href="{% static "css/style.css" %}" rel="stylesheet" media="all" type="text/css"/>
-        {% block extracss%}
+        {% load static %}
+        <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet" media="all" type="text/css"/>
+        <link href="{% static "css/styles.css" %}" rel="stylesheet" media="all" type="text/css"/>
+        {% block extracss %}
         {% endblock %}
         {% endblock %}
 
@@ -27,22 +27,25 @@
     </head>
     <body dir="ltr" {% block extrabodytag %}{% endblock %}>
         {% block bodywrapper %}
-        <div id="page-wrapper">
-            <div id="header">
-                {% block header %}
-                {% include "header.html" %}
-                {% endblock %}
-            </div>
-            <div id="content-wrapper">
+        <div id="header" class="row-fluid">
+            {% block header %}
+            {% include "header.html" %}
+            {% block extraheader %}
+            {% endblock %}
+            {% endblock %}
+        </div>
+        <div id="content-wrapper" class="row-fluid">
+            <div class="span12">
                 {% block contentbody %}
                 {% endblock %}
             </div>
-            <div id="footer">
-                {% block footer %}
-                {% include "footer.html" %}
-                {% endblock %}
-            </div>
+        </div>
+        <div id="footer" class="row-fluid">
+            {% block footer %}
+            {% include "footer.html" %}
+            {% endblock %}
         </div>
         {% endblock %}
     </body>
 </html>
+

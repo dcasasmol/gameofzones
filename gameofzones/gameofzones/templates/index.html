@@ -1,13 +1,30 @@
 {% extends "base.html" %}
 
+
+{% block header %}
+<div class="span2 offset2 logo">
+    <a href="/" title="Home">
+        {% load staticfiles %}
+        <img src="{% static "img/logo.png" %}" alt="Home"/>
+    </a>
+</div>
+<div class="span4 offset1 slogan">
+    <h1>Game of Zones: Cadiz City</h1>
+</div>
+{% endblock %}
+
+
 {% block contentbody %}
-<div class="container">
-    <div class="row">
-        <div class="span16 login">
-            <a href="{% url 'oauth_auth' %}">
-                <img src="{{STATIC_URL}}img/foursquare-login.png" alt="Login" />
-            </a>
-        </div>
-    </div>
+<div class="span8 offset2 login">
+    <a href="{% url 'oauth_auth' %}" title="Connect to Foursquare">
+        <img src="{{STATIC_URL}}img/foursquare-login.png" alt="Login" />
+    </a>
+</div>
+{% endblock %}
+
+
+{% block footer %}
+<div class="span10 offset2 info">
+    <p>Wep application designed by <a href="mailto:david.casasmolina@gmail.com" target="blank" title="e-mail to: david.casasmolina@gmail.com" alt="e-mail">David Casas Molina</a> using <a href="https://www.djangoproject.com" target="blank" title="djangoproject.com" alt="djangoproject.com">Django</a> and <a href="http://twitter.github.io/bootstrap/" target="blank" title="twitter.github.io/bootstrap/" alt="twitter.github.io/bootstrap/">Bootstrap</a>.</p>
 </div>
 {% endblock %}

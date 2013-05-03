@@ -1,8 +1,7 @@
-
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
 {% block jsscripts %}
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLcBr2X0VPuwnHKAxz3P1Y4N4h8IM13zA&sensor=false"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyCLcBr2X0VPuwnHKAxz3P1Y4N4h8IM13zA&sensor=false"></script>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type="text/javascript" src="https://raw.github.com/tparkin/Google-Maps-Point-in-Polygon/master/maps.google.polygon.containsLatLng.js"></script>
 {% block extrajs %}
@@ -250,33 +249,33 @@
 
 {% block extrabodytag  %}onload="initialize()"{% endblock %}
 
-{% block contentbody %}
-<div id="map"></div>
+{% block extraheader %}
 <div id="key-close" onclick="javascript:actions.close()">
     <img class="arrow" src="{{ STATIC_URL }}img/arrow-up2.png" alt="Close"/>
 </div>
 <div id="key-open" onclick="javascript:actions.open()">
     <img class="arrow" src="{{ STATIC_URL }}img/arrow-down2.png" alt="Open"/>
 </div>
-<div id="container-key">
-    <div class="row">
-        <div class="span6 key">
-            <div class="key-item">
-                <div class="search position">
-                    <legend>Hola {{database.1.first_name}} {{database.1.last_name}}</legend>
-                    <a href="https://is1.4sqi.net/userpix{{database.1.photo}}"><img src="https://is1.4sqi.net/userpix_thumbs{{database.1.photo}}" title="{{database.1.first_name}} {{database.1.last_name}}" alt="{{database.1.first_name}} {{database.1.last_name}}"></a>
-                    <ul>
-                        {% for item in checkins  %}
-                        <li>{{item.venue.name}}</li>
-                        {% endfor %}
-                    </ul>
+{% endblock %}
+
+{% block contentbody %}
+<div class="row">
+    <div id="map" class="span1"></div>
+    <div id="container-key">
+        <div class="row-fluid">
+            <div id="key" class="span6">
+                <div class="key-background">
+                    <div class="key-item">
+                        <legend>Hola {{database.1.first_name}} {{database.1.last_name}}</legend>
+                        <a href="https://is1.4sqi.net/userpix{{database.1.photo}}"><img class="img-polaroid" src="https://is1.4sqi.net/userpix_thumbs{{database.1.photo}}" title="{{database.1.first_name}} {{database.1.last_name}}" alt="{{database.1.first_name}} {{database.1.last_name}}"></a>
+                    </div>
+                    <div class="key-item">
+                        <legend>Hola {{database.1.first_name}} {{database.1.last_name}}</legend>
+                    </div>
                 </div>
-                <p class="inputRow">
-                    <input class="button" type="submit" value="Botón" />
-                </p>
             </div>
         </div>
     </div>
 </div>
-
-<a href="{% url 'oauth_unauth' %}">Logout</a>{% endblock %}
+<a href="{% url 'oauth_unauth' %}">Logout</a>
+{% endblock %}
